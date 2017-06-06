@@ -1,6 +1,0 @@
-.PHONY: all clean
-
-OCAMLBUILD = ocamlbuild -use-ocamlfind
-
-all:
-	$(OCAMLBUILD) lintshell.native

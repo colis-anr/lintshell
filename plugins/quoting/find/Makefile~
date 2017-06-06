@@ -1,7 +1,0 @@
-.PHONY: all clean
-
-all:
-	ocamlbuild -use-ocamlfind checkQuotingFind.cmo
-
-clean:
-	ocamlbuild -clean

@@ -1,7 +1,0 @@
-open CST
-
-module type S = sig
-
-  val run : complete_command_list -> unit
-
-end
