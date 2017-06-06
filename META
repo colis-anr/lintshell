@@ -1,0 +1,7 @@
+name="liblintshell"
+version="0.1"
+description="API of lintshell, a linter for POSIX shell"
+requires="str,menhirLib,visitors.ppx,visitors.runtime,ppx_deriving_yojson,yojson,libmorbig"
+archive(byte)="liblintshell.cma"
+archive(native)="liblintshell.cmxa"
+archive(native,plugin)="liblintshell.cmxs"

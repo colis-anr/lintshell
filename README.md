@@ -6,7 +6,7 @@ lintshell analyzes the concrete syntax trees produced by the morbig
 parser to look for potential programming errors.
 
 lintshell is user-extensible: anyone can program an analysis and
-integrate it in the tools.
+integrate it in the tool.
 
 ## Requirements
 
