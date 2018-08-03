@@ -1,4 +1,8 @@
-bin/
-## Emacs files
+/bin
+/lib
+/doc
+/_build
+/*.install
+*.merlin
 *~
 *#

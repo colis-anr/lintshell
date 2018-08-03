@@ -1,4 +1,4 @@
-open CST
+open Libmorbig.CST
 
 type alarm = {
   position : position;
