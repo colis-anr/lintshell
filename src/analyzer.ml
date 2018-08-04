@@ -1,11 +1,6 @@
 open Libmorbig.CST
 
-type alarm = {
-  position : position;
-  message  : string;
-}
-
-type analyzer = complete_command_list -> alarm list
+type analyzer = complete_command_list -> Alarm.t list
 
 module type S = sig
   val name : string

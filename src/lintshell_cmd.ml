@@ -11,10 +11,8 @@ let user_paths = ref []
 let push l a = l := a :: !l
 
 let options = Arg.(align [
-    "-I", String (push user_paths),
-    " Specify search path for plugins"
+    "-I", String (push user_paths), " Specify search path for plugins"
 ])
-
 
 let usage_msg = "\
 Usage: lintshell check [options] file...
@@ -68,16 +66,16 @@ let list () = Analyzer.(
 (*------------*)
 
 let check () =
-  let analyzers =
-    []
+  let run_analyzer cst (module Analyzer : Analyzer.S) =
+    Analyzer.analyzer cst
   in
-  let run_analyzer ast (module Analyzer : Analyzer.S) =
-    Analyzer.analyzer ast
-  in
+  let report = Alarm.report in
   let process filename =
-    let ast = Libmorbig.API.parse_file filename in
-    let _alarms = List.(flatten (map (run_analyzer ast) analyzers)) in
-    ((*FIXME*))
+    let cst = Libmorbig.API.parse_file filename in
+    Analyzer.analyzers ()
+    |> List.map (run_analyzer cst)
+    |> List.flatten
+    |> List.iter report
   in
   List.iter process !input_files
 
@@ -85,10 +83,10 @@ let check () =
 (* Driver *)
 (*--------*)
 
-let process_command_line_arguments =
+let () =
   Arg.parse options (push arguments) usage_msg;
   load_available_analyzers ();
-  match !arguments with
+  match List.rev !arguments with
   | "check" :: files ->
     input_files := files;
     check ()
