@@ -1,42 +1,5 @@
 open Lintshell
-open Libmorbig.CST
-
-(* ================== [ Helpers about redirection lists ] =================== *)
-
-let cmd_prefix_to_io_redirect_list cmd_prefix' =
-  let rec aux acc = function
-    | CmdPrefix_IoRedirect io_redirect' ->
-       io_redirect' :: acc
-    | CmdPrefix_CmdPrefix_IoRedirect (cmd_prefix', io_redirect') ->
-       aux (io_redirect' :: acc) cmd_prefix'.value
-    | CmdPrefix_AssignmentWord _ ->
-       acc
-    | CmdPrefix_CmdPrefix_AssignmentWord (cmd_prefix', _) ->
-       aux acc cmd_prefix'.value
-  in
-  aux [] cmd_prefix'.value
-
-let cmd_suffix_to_io_redirect_list cmd_suffix' =
-  let rec aux acc = function
-    | CmdSuffix_IoRedirect io_redirect' ->
-       io_redirect' :: acc
-    | CmdSuffix_CmdSuffix_IoRedirect (cmd_suffix', io_redirect') ->
-       aux (io_redirect' :: acc) cmd_suffix'.value
-    | CmdSuffix_Word _ ->
-       acc
-    | CmdSuffix_CmdSuffix_Word (cmd_suffix', _) ->
-       aux acc cmd_suffix'.value
-  in
-  aux [] cmd_suffix'.value
-
-let redirect_list_to_io_redirect_list redirect_list' =
-  let rec aux acc = function
-    | RedirectList_IoRedirect io_redirect' ->
-       io_redirect' :: acc
-    | RedirectList_RedirectList_IoRedirect (redirect_list', io_redirect') ->
-       aux (io_redirect' :: acc) redirect_list'.value
-  in
-  aux [] redirect_list'.value
+open Libmorbig open CST
 
 (* ==================== [ Checker on redirection lists ] ==================== *)
 
@@ -78,7 +41,7 @@ let apply_io_file descriptors io_number = function
   | IoFile_LessAnd_FileName {value=Filename_Word {value=word;_};_} ->
      (try
         apply_io_number descriptors 0
-          descriptors.(int_of_string (Libmorbig.CSTHelpers.unWord word))
+          descriptors.(int_of_string (CSTHelpers.unWord word))
           io_number
       with Failure _ ->
         apply_io_number descriptors 0
@@ -87,7 +50,7 @@ let apply_io_file descriptors io_number = function
   | IoFile_GreatAnd_FileName {value=Filename_Word {value=word;_};_} ->
      (try
         apply_io_number descriptors 1
-          descriptors.(int_of_string (Libmorbig.CSTHelpers.unWord word))
+          descriptors.(int_of_string (CSTHelpers.unWord word))
           io_number
       with Failure _ ->
         apply_io_number descriptors 1
@@ -156,7 +119,7 @@ module Checker : Analyzer.S = struct
 
   let analyzer (csts: complete_command_list) =
     let visitor = object (self)
-      inherit [_] Libmorbig.CST.reduce as super
+      inherit [_] reduce as super
 
       method zero = []
       method plus = (@)
@@ -166,7 +129,7 @@ module Checker : Analyzer.S = struct
           match command with
           | Command_CompoundCommand_RedirectList (_, redirect_list') ->
              (
-               redirect_list_to_io_redirect_list redirect_list'
+               CSTHelpers.io_redirect_list_of_redirect_list redirect_list'.value
                |> check_io_redirect_list
              )
           | _ -> self#zero
@@ -178,7 +141,7 @@ module Checker : Analyzer.S = struct
           match function_body with
           | FunctionBody_CompoundCommand_RedirectList (_, redirect_list') ->
              (
-               redirect_list_to_io_redirect_list redirect_list'
+               CSTHelpers.io_redirect_list_of_redirect_list redirect_list'.value
                |> check_io_redirect_list
              )
           | _ -> self#zero
@@ -186,41 +149,8 @@ module Checker : Analyzer.S = struct
         |> self#plus (super#visit_function_body () function_body)
 
       method! visit_simple_command () simple_command =
-        (
-          match simple_command with
-          | SimpleCommand_CmdPrefix_CmdWord_CmdSuffix (cmd_prefix', _, cmd_suffix') ->
-             (
-               let in_prefix = cmd_prefix_to_io_redirect_list cmd_prefix' in
-               let in_suffix = cmd_suffix_to_io_redirect_list cmd_suffix' in
-               match in_prefix, in_suffix with
-               | [], [] -> []
-               | _, [] -> check_io_redirect_list in_prefix
-               | [], _ -> check_io_redirect_list in_suffix
-               | _, _ -> check_io_redirect_list (in_prefix @ in_suffix)
-             )
-          | SimpleCommand_CmdPrefix_CmdWord (cmd_prefix', _) ->
-             (
-               let content = cmd_prefix_to_io_redirect_list cmd_prefix' in
-               if content = []
-               then []
-               else check_io_redirect_list content
-             )
-          | SimpleCommand_CmdPrefix cmd_prefix' ->
-             (
-               let content = cmd_prefix_to_io_redirect_list cmd_prefix' in
-               if content = []
-               then []
-               else check_io_redirect_list content
-             )
-          | SimpleCommand_CmdName_CmdSuffix (_, cmd_suffix') ->
-             (
-               let content = cmd_suffix_to_io_redirect_list cmd_suffix' in
-               if content = []
-               then []
-               else check_io_redirect_list content
-             )
-          | _ -> self#zero
-        )
+        CSTHelpers.io_redirect_list_of_simple_command simple_command
+        |> check_io_redirect_list
         |> self#plus (super#visit_simple_command () simple_command)
       end
     in
