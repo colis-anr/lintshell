@@ -1,4 +1,0 @@
-(library
- (name checkCrossingRedirections)
- (public_name lintshell.plugins.redirections.crossing)
- (libraries lintshell))

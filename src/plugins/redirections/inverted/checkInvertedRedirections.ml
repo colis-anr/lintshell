@@ -114,8 +114,8 @@ let check_io_redirect_list io_redirect_list =
 (* ========================= [ The checker itself ] ========================= *)
 
 module Checker : Analyzer.S = struct
-  let name = "redirections/crossing"
-  let documentation = "Looks for wrong redirections like 2>&1 >/dev/null"
+  let name = "redirections/inverted"
+  let documentation = "Looks for inverted redirections like 2>&1 >/dev/null"
 
   let analyzer (csts: complete_command_list) =
     let visitor = object (self)
