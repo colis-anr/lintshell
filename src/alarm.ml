@@ -5,17 +5,36 @@ type t = {
   message  : string;
 }
 
-let extract_from_file p1 p2 =
-  let open Lexing in
-  let buf = Bytes.make (p2.pos_cnum - p1.pos_bol) ' ' in
-  let ic = open_in p1.pos_fname in
-  seek_in ic p1.pos_bol; (*FIXME: cnum; ?*)
-  really_input ic buf (p1.pos_cnum - p1.pos_bol) (p2.pos_cnum - p1.pos_cnum);
+let extract_from_file file from to_ =
+  let buf = Buffer.create 8 in
+  let ic = open_in file in
+  let line = ref 1 in
+  while !line < from do
+    match input_char ic with
+    | '\n' -> incr line
+    | _ -> ()
+  done;
+  while !line <= to_ do
+    let c = input_char ic in
+    Buffer.add_char buf c;
+    match c with
+    | '\n' -> incr line
+    | _ -> ()
+  done;
   close_in ic;
-  Bytes.to_string buf
+  Buffer.contents buf
 
 let report alarm =
-  Format.printf "In %s line %d:\n%s@."
-    alarm.position.start_p.pos_fname
-    alarm.position.start_p.pos_lnum
-    (extract_from_file alarm.position.start_p alarm.position.end_p)
+  let filename = alarm.position.start_p.pos_fname in
+  let line = alarm.position.start_p.pos_lnum in
+  let first_column = alarm.position.start_p.pos_cnum - alarm.position.start_p.pos_bol in
+  let last_column = alarm.position.end_p.pos_cnum - alarm.position.end_p.pos_bol in
+  Format.printf "\nFile \"%s\", line %d:\n: %s  %s%s\n%s@."
+    filename line
+    (extract_from_file filename line line)
+    (String.make first_column ' ')
+    (String.make (last_column - first_column) '^')
+    alarm.message
+
+let make ~position message =
+  { position ; message }
