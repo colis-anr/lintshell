@@ -1,63 +1,103 @@
 open Lintshell
 open Libmorbig open CST
 
+(* The goal of this checker is to see if there are so-called
+   "inverted" redirections. Inverted redirections happen when, in a
+   redirection list, one file descriptor ends up writing into what an
+   other descriptor used to write into, while the latter is writing
+   into something else.
+
+   Example: 2>&1 >/dev/null
+
+   In this example, when evaluating the whole redirection list, the
+   file descriptor 1 ends up writing into /dev/null while the
+   descriptor 2 ends up writing into what 1 used to point to.
+
+   This is usually not what is meant. In the given example, one would
+   expect to redirect both 1 and 2 to /dev/null, which is achieve
+   with: >/dev/null 2>&1 *)
+
 (* ==================== [ Checker on redirection lists ] ==================== *)
 
-(* What we know on a descriptor *)
+(* The way this checker works is by evaluating statically what a
+   redirection list will do. To do so, we try to track what the
+   redirections modify on an array of file descriptors. For each
+   descriptor, we distinguish three cases: *)
+
 type descriptor =
-  | Initial of int  (* what was at the begining for the given int *)
-  | Other           (* pointing towards something *)
-  | DontKnow        (* all info has been lost *)
+  | Initial of int  (* the descriptor writes to what the given
+                       descriptor was writing to at the begining *)
+  | Other           (* the descriptor points towards something that
+                       does not matter *)
+  | DontKnow        (* we cannot be sure whether wahat the descriptor
+                       is writing to matters or not in this evaluation *)
 
 type descriptors = descriptor array
 
 let number_of_descriptors = 10
 
-(* At first, we know that each descriptor points towards what it
-   points to (yay) *)
+(* Initially, we know that each descriptor writes into what it was
+   writing to initially. (If the sentence looks trivial, it's because
+   it is) *)
+
 let initial_descriptors () =
   Array.init number_of_descriptors (fun i -> Initial i)
+
+(* In some situations, we will have to say that we don't know anything
+   anymore on all the descriptors. This is what the [dontknow]
+   function is for. *)
 
 let dontknow descriptors =
   for i = 0 to Array.length descriptors - 1 do
     descriptors.(i) <- DontKnow
   done
 
-let apply_io_number descriptors default descriptor = function
+(* [apply_io_number descriptors target default io_number_option] tries
+   to detect which file descriptor is described by the
+   [io_number_option] (or uses [default] if the option is [None]) and
+   changes what this descriptor is writing into into [target]. *)
+
+let apply_io_number descriptors target default = function
   | None ->
-     descriptors.(default) <- descriptor
+     descriptors.(default) <- target
   | Some (IONumber s) ->
-     try descriptors.(int_of_string s) <- descriptor
+     try descriptors.(int_of_string s) <- target
      with Failure _ -> dontknow descriptors
+
+(* [apply_io_file descriptors io_number io_file] interprets what
+   [io_file] changes for [io_number]. *)
 
 let apply_io_file descriptors io_number = function
   | IoFile_Less_FileName _
   | IoFile_LessGreat_FileName _ ->
-     apply_io_number descriptors 0 Other io_number
+     apply_io_number descriptors Other 0 io_number
   | IoFile_Great_FileName _
   | IoFile_DGreat_FileName _
   | IoFile_Clobber_FileName _ ->
-     apply_io_number descriptors 1 Other io_number
+     apply_io_number descriptors Other 1 io_number
   | IoFile_LessAnd_FileName {value=Filename_Word {value=word;_};_} ->
      (try
-        apply_io_number descriptors 0
+        apply_io_number descriptors
           descriptors.(int_of_string (CSTHelpers.unWord word))
-          io_number
+          0 io_number
       with Failure _ ->
-        apply_io_number descriptors 0
+        apply_io_number descriptors
           DontKnow
-          io_number)
+          0 io_number)
   | IoFile_GreatAnd_FileName {value=Filename_Word {value=word;_};_} ->
      (try
-        apply_io_number descriptors 1
+        apply_io_number descriptors
           descriptors.(int_of_string (CSTHelpers.unWord word))
-          io_number
+          1 io_number
       with Failure _ ->
-        apply_io_number descriptors 1
+        apply_io_number descriptors
           DontKnow
-          io_number)
+          1 io_number)
 
 let apply_io_here _descriptors _io_number _ = ()
+
+(* [apply_io_redirect_list] applies all the redirections one after the
+   other. *)
 
 let rec apply_io_redirect_list descriptors = function
   | [] -> ()
@@ -75,16 +115,12 @@ let rec apply_io_redirect_list descriptors = function
      );
      apply_io_redirect_list descriptors others
 
-let debug_print_descriptors descriptors =
-  Array.iter
-    (function
-     | Initial i -> print_char ' '; print_int i
-     | Other -> print_string " ."
-     | DontKnow -> print_string " ?")
-    descriptors;
-  print_newline ()
+(* [find_inverted_descriptors] checks on a set of descriptors if there
+   is an inversion. For the example 2>&1 >/dev/null, there would be
+   one as [1] would write to [Other] and [2] would write to [Initial
+   1]. *)
 
-let have_descriptors_crossed descriptors =
+let find_inverted_descriptors descriptors =
   let result = ref None in
   for i = 0 to Array.length descriptors -1 do
     match descriptors.(i) with
@@ -104,7 +140,7 @@ let have_descriptors_crossed descriptors =
 let check_io_redirect_list io_redirect_list =
   let descriptors = initial_descriptors () in
   apply_io_redirect_list descriptors io_redirect_list;
-  match have_descriptors_crossed descriptors with
+  match find_inverted_descriptors descriptors with
   | None -> []
   | Some (i, j) ->
      [Alarm.make
