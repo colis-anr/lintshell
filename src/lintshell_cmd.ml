@@ -34,32 +34,30 @@ let input_files = ref []
 open Analyzer
 
 let search_paths () = [
-    "lib";
+    "lib/lintshell/plugins";
 (*    Filename.concat (Sys.getenv "$HOME") ".lintshell" *)
 ] @ !user_paths
 
-(* let load_available_analyzers () =
- *   let rec traverse dirname dir_handle = Unix.(
- *     try
- *       let entry = Unix.readdir dir_handle in
- *       (if Filename.check_suffix entry ".cmo" then
- *         let module_filename = Dynlink.adapt_filename entry in
- *         (try
- *            Dynlink.loadfile (Filename.concat dirname module_filename)
- *          with Dynlink.Error e ->
- *            Printf.eprintf "Warning: `%s' did not load correctly (%s).\n"
- *              module_filename
- *              (Dynlink.error_message e)
- *         ));
- *         traverse dirname dir_handle
- *     with End_of_file -> closedir dir_handle
- *   )
- *   in
- *   List.iter
- *     (fun dirname -> traverse dirname (Unix.opendir dirname))
- *     (search_paths ()) *)
-
-let load_available_analyzers () = ()
+let load_available_analyzers () =
+  let rec aux dirname =
+    Sys.readdir dirname
+    |> Array.iter
+         (fun file ->
+           let file = Filename.concat dirname file in
+           if Filename.check_suffix file ".cma" then
+             (
+               let file = Dynlink.adapt_filename file in
+               try
+                 Dynlink.loadfile file
+               with
+                 Dynlink.Error e ->
+                 Printf.eprintf "Warning: `%s' did not load correctly (%s).\n"
+                   file (Dynlink.error_message e)
+             )
+           else if Sys.is_directory file then
+             aux file)
+  in
+  List.iter aux (search_paths ())
 
 let list () = Analyzer.(
     List.iter show_documentation (analyzers ())

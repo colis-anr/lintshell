@@ -2,12 +2,12 @@
 
 build:
 	dune build @install
-	[ ! -e bin ] && ln -s _build/install/default/bin bin
-	[ ! -e lib ] && ln -s _build/install/default/lib lib
+	[ -e bin ] || ln -s _build/install/default/bin bin
+	[ -e lib ] || ln -s _build/install/default/lib lib
 
 doc:
 	dune build @doc
-	[ ! -e doc ] && ln -s _build/default/_doc/_html/ doc
+	[ -e doc ] || ln -s _build/default/_doc/_html/ doc
 
 install:
 	dune install

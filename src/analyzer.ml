@@ -8,11 +8,9 @@ type alarm = {
 type analyzer = complete_command_list -> alarm list
 
 module type S = sig
-
   val name : string
   val documentation : string
   val analyzer : analyzer
-
 end
 
 let _analyzers : (module S) list ref = ref []
