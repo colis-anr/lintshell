@@ -153,7 +153,7 @@ module Checker : Analyzer.S = struct
   let name = "redirections/inverted"
   let documentation = "Looks for inverted redirections like 2>&1 >/dev/null"
 
-  let analyzer (csts: complete_command_list) =
+  let analyzer program =
     let visitor = object (self)
       inherit [_] reduce as super
 
@@ -190,9 +190,7 @@ module Checker : Analyzer.S = struct
         |> self#plus (super#visit_simple_command () simple_command)
       end
     in
-    csts
-    |> List.map (fun cst -> visitor#visit_complete_command () cst.value)
-    |> List.flatten
+    visitor#visit_program () program
 end
 
 let register = Analyzer.register_analyzer (module Checker)

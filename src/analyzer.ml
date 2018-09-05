@@ -1,6 +1,6 @@
 open Libmorbig.CST
 
-type analyzer = complete_command_list -> Alarm.t list
+type analyzer = program -> Alarm.t list
 
 module type S = sig
   val name : string
