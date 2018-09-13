@@ -1,0 +1,4 @@
+(library
+ (name checkInvertedRedirections)
+ (public_name lintshell.plugins.redirections.inverted)
+ (libraries lintshell))

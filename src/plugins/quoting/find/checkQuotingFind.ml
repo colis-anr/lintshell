@@ -1,3 +1,5 @@
+open Lintshell
+
 module Checker : Analyzer.S = struct
   let documentation = "Check that find patterns are quoted."
   let name = "quoting/find"

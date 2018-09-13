@@ -1,0 +1,12 @@
+(library
+ (name lintshell)
+ (public_name lintshell)
+ (libraries libmorbig)
+ (modules :standard \ Lintshell_cmd))
+
+(executable
+ (name lintshell_cmd)
+ (public_name lintshell)
+ (libraries ppx_deriving_yojson.runtime lintshell)
+ (modules Lintshell_cmd)
+ (flags :standard -w -33))

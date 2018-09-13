@@ -1,0 +1,4 @@
+(library
+ (name checkQuotingFind)
+ (public_name lintshell.plugins.quoting.find)
+ (libraries lintshell))
