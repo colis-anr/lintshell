@@ -1,0 +1,29 @@
+opam-version: "2.0"
+
+name: "lintshell"
+version: "0.1"
+
+synopsis: "A linter for POSIX shell working on concrete syntax tree"
+description: """
+Lintshell is a linter for POSIX shell. The main difference with other
+linters for shell is that Lintshell relies on Morbig---a parser for
+POSIX shell---to provide concrete syntax trees and iterators on these
+syntax trees. This gives a very large expressive power to the linting
+rules.
+"""
+
+homepage: "https://github.com/colis-anr/lintshell"
+bug-reports: "https://github.com/colis-anr/lintshell/issues"
+
+authors: [
+  "Yann Régis-Gianas <yann.regis-gianas@irif.fr>"
+  "Nicolas Jeannerod <nicolas.jeannerod@irif.fr>"
+]
+
+maintainer: "Nicolas Jeannerod <nicolas.jeannerod@irif.fr>"
+
+depends: [
+  "dune"                   {build}
+  "morbig"
+  "ppx_deriving_yojson"
+]

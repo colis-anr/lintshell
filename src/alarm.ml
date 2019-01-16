@@ -1,4 +1,4 @@
-open Libmorbig.CST
+open Morbig.CST
 
 type t = {
   position : position;

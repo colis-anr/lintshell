@@ -1,5 +1,5 @@
 open Lintshell
-open Libmorbig open CST
+open Morbig open CST
 
 (* The goal of this checker is to see if there are so-called
    "inverted" redirections. Inverted redirections happen when, in a
