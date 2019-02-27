@@ -24,6 +24,6 @@ maintainer: "Nicolas Jeannerod <nicolas.jeannerod@irif.fr>"
 
 depends: [
   "dune"                   {build}
-  "morbig"
+  "morbig"                 {>= "0.10.0"}
   "ppx_deriving_yojson"
 ]

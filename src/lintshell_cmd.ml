@@ -71,7 +71,7 @@ let check () =
   in
   let report = Alarm.report in
   let process filename =
-    let cst = Morbig.API.parse_file filename in
+    let cst = Morbig.parse_file filename in
     Analyzer.analyzers ()
     |> List.map (run_analyzer cst)
     |> List.flatten

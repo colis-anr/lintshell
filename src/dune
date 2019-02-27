@@ -7,6 +7,6 @@
 (executable
  (name lintshell_cmd)
  (public_name lintshell)
- (libraries ppx_deriving_yojson.runtime lintshell)
+ (libraries ppx_deriving_yojson.runtime lintshell findlib.dynload)
  (modules Lintshell_cmd)
  (flags :standard -w -33))
