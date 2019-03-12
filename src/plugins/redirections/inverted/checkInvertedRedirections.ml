@@ -149,11 +149,11 @@ let check_io_redirect_list io_redirect_list =
 
 (* ========================= [ The checker itself ] ========================= *)
 
-module Checker : Analyzer.S = struct
+module Checker : Analyzer.CSTAnalyzer = struct
   let name = "redirections/inverted"
-  let documentation = "Looks for inverted redirections like 2>&1 >/dev/null"
+  let description = "Looks for inverted redirections like 2>&1 >/dev/null"
 
-  let analyzer program =
+  let analyze program =
     let visitor = object (self)
       inherit [_] reduce as super
 
@@ -193,4 +193,4 @@ module Checker : Analyzer.S = struct
     visitor#visit_program () program
 end
 
-let register = Analyzer.register_analyzer (module Checker)
+let register = Analyzer.register_cst_analyzer (module Checker)

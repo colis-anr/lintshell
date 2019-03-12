@@ -1,7 +1,7 @@
 (library
  (name lintshell)
  (public_name lintshell)
- (libraries morbig)
+ (libraries morbig morsmall)
  (modules :standard \ Lintshell_cmd))
 
 (executable

@@ -58,7 +58,7 @@ let load_available_analyzers () =
   List.iter aux (search_paths ())
 
 let list () = Analyzer.(
-    List.iter show_documentation (analyzers ())
+    List.iter (pp Format.std_formatter) (get_analyzers ())
 )
 
 (*------------*)
@@ -66,16 +66,13 @@ let list () = Analyzer.(
 (*------------*)
 
 let check () =
-  let run_analyzer cst (module Analyzer : Analyzer.S) =
-    Analyzer.analyzer cst
-  in
-  let report = Alarm.report in
   let process filename =
     let cst = Morbig.parse_file filename in
-    Analyzer.analyzers ()
-    |> List.map (run_analyzer cst)
+    let ast = Morsmall.CST_to_AST.program__to__program cst in
+    Analyzer.get_analyzers ()
+    |> List.map (fun analyzer -> Analyzer.analyze analyzer cst ast)
     |> List.flatten
-    |> List.iter report
+    |> List.iter Alarm.report
   in
   List.iter process !input_files
 
