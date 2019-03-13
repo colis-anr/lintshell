@@ -1,9 +1,34 @@
-open Lintshell
+Lintshell.Analyzer.(register_analyzer (module struct
 
-module Checker : Analyzer.S = struct
-  let documentation = "Check that find patterns are quoted."
   let name = "quoting/find"
-  let analyzer _ = []
-end
 
-let register = Analyzer.register_analyzer (module Checker)
+  let author = "Yann Régis-Gianas <yrg@irif.fr>"
+
+  let short_description = "Check that 'find' patterns are quoted."
+
+  let documentation =
+"
+In the following example:
+```
+find -name *.c
+```
+The glob *.c is expanded before the execution of find while it
+should be passed as a pattern to the 'name' argument:
+```
+find -name '*.c'
+```
+"
+
+  let find_pattern_commands = ["-name"]
+
+  let message = "Patterns of the find command must be quoted."
+
+  let analyzer =
+    for_all_command (fun _ c ->
+        for_all_arguments c (fun pos arg ->
+            Alarm.at pos message (
+              one_of find_pattern_commands (word_precedes arg) &&
+              check_argument arg is_not_quoted_word)
+          )
+      )
+end))

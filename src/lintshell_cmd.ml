@@ -1,7 +1,5 @@
 (** lintshell, a user-extensible lint for shell. *)
 
-open Lintshell
-
 (*-------------------------*)
 (* Command line processing *)
 (*-------------------------*)
@@ -11,12 +9,15 @@ let user_paths = ref []
 let push l a = l := a :: !l
 
 let options = Arg.(align [
-    "-I", String (push user_paths), " Specify search path for plugins"
+    "-I", String (push user_paths),
+    " Specify search path for plugins"
 ])
+
 
 let usage_msg = "\
 Usage: lintshell check [options] file...
    or: lintshell list
+   or: lintshell show analyzer
 "
 
 let show_usage () =
@@ -29,53 +30,73 @@ let input_files = ref []
 (* Plugin management *)
 (*-------------------*)
 
-open Analyzer
+open Lintshell.Analyzer
 
-let search_paths () = [
-    "lib/lintshell/plugins";
-(*    Filename.concat (Sys.getenv "$HOME") ".lintshell" *)
-] @ !user_paths
+let is_lintshell_plugin s =
+  Str.(string_match (regexp "^lintshell.plugins..*") s 0)
+
+let search_paths () =
+  Findlib.init ();
+  Fl_package_base.load_base ();
+  Fl_package_base.list_packages ()
+  |> List.filter is_lintshell_plugin
+  |> List.map Findlib.package_directory
 
 let load_available_analyzers () =
-  let rec aux dirname =
-    Sys.readdir dirname
-    |> Array.iter
-         (fun file ->
-           let file = Filename.concat dirname file in
-           if Filename.check_suffix file ".cma" then
-             (
-               let file = Dynlink.adapt_filename file in
-               try
-                 Dynlink.loadfile file
-               with
-                 Dynlink.Error e ->
-                 Printf.eprintf "Warning: `%s' did not load correctly (%s).\n"
-                   file (Dynlink.error_message e)
-             )
-           else if Sys.is_directory file then
-             aux file)
+  let rec traverse dirname dir_handle = Unix.(
+    try
+      let entry = Unix.readdir dir_handle in
+      (if Filename.check_suffix entry ".cma" then
+        let module_filename = Dynlink.adapt_filename entry in
+        (try
+           Dynlink.loadfile (Filename.concat dirname module_filename)
+         with Dynlink.Error e ->
+           Printf.eprintf "Warning: `%s' did not load correctly (%s).\n"
+             module_filename
+             (Dynlink.error_message e)
+        ));
+        traverse dirname dir_handle
+    with End_of_file -> closedir dir_handle
+  )
   in
-  List.iter aux (search_paths ())
+  List.iter
+    (fun dirname -> try
+        traverse dirname (Unix.opendir dirname)
+      with Unix.Unix_error(Unix.ENOENT, _, _) ->
+        () (* Silently ignore non existing standard directories. *)
+    )
+    (search_paths ())
 
-let list () = Analyzer.(
-    List.iter show_documentation (analyzers ())
+let list () = Lintshell.Analyzer.(
+    List.iter show_short_description (analyzers ())
 )
+
+let show what = Lintshell.Analyzer.(
+    try
+      show_details (List.find (fun (module A : S) ->
+        A.name = what
+      ) (analyzers ()))
+    with Not_found ->
+      Printf.eprintf "Analyzer `%s' not found.\n" what;
+      exit 1
+  )
 
 (*------------*)
 (* Processing *)
 (*------------*)
 
 let check () =
-  let run_analyzer cst (module Analyzer : Analyzer.S) =
-    Analyzer.analyzer cst
+  let analyzers =
+    analyzers ()
   in
-  let report = Alarm.report in
+  let run_analyzer ast (module Analyzer : Lintshell.Analyzer.S) =
+    Analyzer.(interpret analyzer ast)
+  in
   let process filename =
-    let cst = Morbig.parse_file filename in
-    Analyzer.analyzers ()
-    |> List.map (run_analyzer cst)
-    |> List.flatten
-    |> List.iter report
+    let ast = Morbig.parse_file filename in
+    List.(flatten (map (run_analyzer ast) analyzers)) |>
+    List.sort Alarm.compare |>
+    List.iter Alarm.show
   in
   List.iter process !input_files
 
@@ -83,7 +104,7 @@ let check () =
 (* Driver *)
 (*--------*)
 
-let () =
+let process_command_line_arguments =
   Arg.parse options (push arguments) usage_msg;
   load_available_analyzers ();
   match List.rev !arguments with
@@ -92,5 +113,8 @@ let () =
     check ()
   | ["list"] ->
     list ()
-  | _ ->
+  | "show" :: what :: [] ->
+    show what
+  | arguments ->
+    Printf.eprintf "Invalid arguments `%s'.\n" (String.concat " " arguments);
     show_usage ()

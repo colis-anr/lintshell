@@ -145,15 +145,26 @@ let check_io_redirect_list io_redirect_list =
   | Some (i, j) ->
      [Alarm.make
         ~position:(List.hd io_redirect_list).position
-        (Printf.sprintf "The file descriptor %d points to what %d used to point to; but %d points to something else. You probably want to change the order of your redirections." i j j)]
+        (Printf.sprintf
+           "The file descriptor %d points to what %d used to point to; \
+            but %d points to something else. \
+            You probably want to change the order of your redirections." i j j)]
 
 (* ========================= [ The checker itself ] ========================= *)
 
 module Checker : Analyzer.S = struct
-  let name = "redirections/inverted"
-  let documentation = "Looks for inverted redirections like 2>&1 >/dev/null"
 
-  let analyzer program =
+  let name = "redirections/inverted"
+
+  let author = "Nicolas Jeannerod <nicolas.jeannerod@irif.fr>"
+
+  let short_description =
+    "Looks for inverted redirections like 2>&1 >/dev/null"
+
+  let documentation =
+    "Looks for inverted redirections like 2>&1 >/dev/null"
+
+  let analyzer = Analyzer.check_program (fun program ->
     let visitor = object (self)
       inherit [_] reduce as super
 
@@ -190,7 +201,7 @@ module Checker : Analyzer.S = struct
         |> self#plus (super#visit_simple_command () simple_command)
       end
     in
-    visitor#visit_program () program
+    visitor#visit_program () program)
 end
 
 let register = Analyzer.register_analyzer (module Checker)
