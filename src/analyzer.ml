@@ -155,7 +155,18 @@ let interpret : analyzer -> (program -> alarm list) =
 
 (** Analyzers combinators. *)
 
-let for_all_command f = CheckCommand f
+let is_command_name c name =
+  match c.command_program with
+  | `Name { value = CmdName_Word { value = Word (name', _); _ }; _ } ->
+     name = name'
+  | _ ->
+     false
+
+let for_all_command ?name f =
+  CheckCommand (fun pos c ->
+      match name with
+        | None -> f pos c
+        | Some name -> if is_command_name c name then f pos c else [])
 
 (** An argument is a word in command_suffix carrying its context
    represented by a zipper. *)

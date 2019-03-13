@@ -24,7 +24,7 @@ find -name '*.c'
   let message = "Patterns of the find command must be quoted."
 
   let analyzer =
-    for_all_command (fun _ c ->
+    for_all_command ~name:"find" (fun _ c ->
         for_all_arguments c (fun pos arg ->
             Alarm.at pos message (
               one_of find_pattern_commands (word_precedes arg) &&
