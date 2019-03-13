@@ -80,12 +80,12 @@ let command_of_simple_command = function
 type analyzer =
   | CheckCommand of (position -> command -> alarm list)
   | CheckProgram of (program -> alarm list)
+  | CheckWordComponent of (position -> word_component -> alarm list)
   | Sequence  of analyzer list
 
 let check_program f = CheckProgram f
-
 let check_command f = CheckCommand f
-
+let check_word_component f = CheckWordComponent f
 let sequence l = Sequence l
 
 module type S = sig
@@ -117,40 +117,43 @@ let show_details (module Analyzer : S) =
     (indent 2 Analyzer.documentation)
 
 (** Analyzers interpretation. *)
-let selector select a =
-  let rec aux accu = function
-    | Sequence analysers -> List.fold_left aux accu analysers
-    | x -> match select x with None -> accu | Some x -> x :: accu
-  in
-  aux [] a
-
 let interpret : analyzer -> (program -> alarm list) =
   fun analyzer ->
+    let ( !! ) pred =
+      let rec aux accu = function
+        | Sequence analysers -> List.fold_left aux accu analysers
+        | x -> match pred x with None -> accu | Some x -> x :: accu
+      in
+      aux [] analyzer
+    in
+
     let alarms = ref [] in
     let push a = alarms := a @ !alarms in
 
-    let program_filters =
-      selector (function CheckProgram f -> Some f | _ -> None) analyzer
-    in
-    let command_filters =
-      selector (function CheckCommand f -> Some f | _ -> None) analyzer
-    in
+    let fprogram = !! (function CheckProgram f -> Some f | _ -> None) in
+    let fcommand = !! (function CheckCommand f -> Some f | _ -> None) in
+    let fwordcpt = !! (function CheckWordComponent f -> Some f | _ -> None) in
+
     let module Visitor = struct
       class ['a] iter = object
-        inherit ['a] CST.iter
+        inherit ['a] CST.iter as super
 
-        method! visit_simple_command' _ c =
+        method! visit_simple_command' p c =
           let c' = command_of_simple_command c.value in
-          let alarms' =
-            List.flatmap (fun f -> f c.position c') command_filters
-          in
-          alarms := alarms' @ !alarms
+          push (List.flatmap (fun f -> f c.position c') fcommand);
+          super#visit_simple_command' p c
+
+        method! visit_word' _ { position; value = Word (_, cs) } =
+          push (List.(flatmap (fun f ->
+                          flatmap (fun c -> f position c) cs)
+                     fwordcpt))
+
       end
     end
     in
     fun script ->
       (new Visitor.iter)#visit_program () script;
-      List.iter (fun f -> push (f script)) program_filters;
+      List.iter (fun f -> push (f script)) fprogram;
       !alarms
 
 (** Analyzers combinators. *)
@@ -179,11 +182,14 @@ type argument = {
 let one_of xs pred =
   List.exists pred xs
 
+let equal_word w = function
+  | Word (w', _) ->
+     w = w'
+
 let word_precedes arg item =
   match arg.on_left with
-  | `Word { value = Word (item', _); _ } :: _ -> item = item'
+  | `Word { value = item'; _ } :: _ -> equal_word item item'
   | _ -> false
-
 
 let for_all_arguments command f =
   let rec iter on_left = function

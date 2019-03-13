@@ -1,0 +1,4 @@
+(library
+ (name checkParametersValidity)
+ (public_name lintshell.plugins.variables.parameters)
+ (libraries lintshell))
