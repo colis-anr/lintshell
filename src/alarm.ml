@@ -1,16 +1,10 @@
 open Morbig.CST
 open Morbig.CSTHelpers
-open ExtStd
 
 type t = {
   position : position;
   message  : string;
 }
-
-let show a =
-  Printf.printf "%s:\n%s\n"
-    (string_of_position a.position)
-    (indent 2 a.message)
 
 let compare a1 a2 =
   compare_positions a1.position a2.position

@@ -2,9 +2,13 @@ open Morbig
 open CST
 open ExtStd
 
+module Concrete = Morbig.CST
+
+module Abstract = Morsmall.AST
+
 module Alarm = Alarm
 
-type alarm = Alarm.t
+type alarms = Alarm.t list
 
 type command_prefix_item = [
   | `Assignment  of assignment_word'
@@ -77,28 +81,25 @@ let command_of_simple_command = function
       command_suffix = []
     }
 
-module Abs = Morsmall.AST
-
 type analyzer =
   (* CST analyzers *)
-  | CheckCommand of (position -> command -> alarm list)
-  | CheckProgram of (program -> alarm list)
-  | CheckWordComponent of (position -> word_component -> alarm list)
+  | CheckCommand of (position -> command -> alarms)
+  | CheckProgram of (program -> alarms)
+  | CheckWordComponent of (position -> word_component -> alarms)
   (* AST analyzers *)
-  | CheckAbsProgram of (Abs.program -> alarm list)
+  | CheckAbsProgram of (Abstract.program -> alarms)
   (* Operators *)
   | Sequence  of analyzer list
 
 let check_program f = CheckProgram f
-let check_command f = CheckCommand f
 let check_word_component f = CheckWordComponent f
-let check_abs_program f = CheckAbsProgram f
+let check_abstract_program f = CheckAbsProgram f
 let sequence l = Sequence l
 
 module type S = sig
 
   val name : string
-  val author : string
+  val authors : string list
   val short_description : string
   val documentation : string
   val analyzer : analyzer
@@ -119,14 +120,14 @@ let show_short_description (module Analyzer : S) =
     Analyzer.short_description
 
 let show_details (module Analyzer : S) =
-  Printf.printf "- Name:    %s\n- Author:  %s\n- Summary: %s\n- Description:%s"
+  Printf.printf "- Name:    %s\n- Authors:  %s\n- Summary: %s\n- Description:%s"
     Analyzer.name
-    Analyzer.author
+    (String.concat ", " Analyzer.authors)
     Analyzer.short_description
     (indent 2 Analyzer.documentation)
 
 (** Analyzers interpretation. *)
-let interpret : analyzer -> (program -> Abs.program -> alarm list) =
+let interpret : analyzer -> (program -> Abstract.program -> alarms) =
   fun analyzer ->
     let ( !! ) pred =
       let rec aux accu = function

@@ -99,7 +99,7 @@ let check () =
     let ast = Morsmall.CST_to_AST.program__to__program cst in
     List.(flatten (map (run_analyzer cst ast) analyzers)) |>
     List.sort Alarm.compare |>
-    List.iter Alarm.show
+    List.iter Alarm.report
   in
   List.iter process !input_files
 

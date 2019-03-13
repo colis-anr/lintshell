@@ -4,7 +4,7 @@ let _ = Lintshell.Analyzer.(register_analyzer (module struct
 
   let name = "variables/parameters"
 
-  let author = "Yann Régis-Gianas <yrg@irif.fr>"
+  let authors = ["Yann Régis-Gianas <yrg@irif.fr>"]
 
   let short_description = "Check that variables parameters are valid."
 

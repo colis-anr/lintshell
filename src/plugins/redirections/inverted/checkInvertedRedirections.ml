@@ -143,7 +143,7 @@ let check_io_redirect_list io_redirect_list =
   match find_inverted_descriptors descriptors with
   | None -> []
   | Some (i, j) ->
-     [Alarm.make
+     [Analyzer.Alarm.make
         ~position:(List.hd io_redirect_list).position
         (Printf.sprintf
            "The file descriptor %d points to what %d used to point to; \
@@ -156,7 +156,7 @@ module Checker : Analyzer.S = struct
 
   let name = "redirections/inverted"
 
-  let author = "Nicolas Jeannerod <nicolas.jeannerod@irif.fr>"
+  let authors = ["Nicolas Jeannerod <nicolas.jeannerod@irif.fr>"]
 
   let short_description =
     "Looks for inverted redirections like 2>&1 >/dev/null"

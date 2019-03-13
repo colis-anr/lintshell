@@ -1,0 +1,4 @@
+(library
+ (name checkSomething)
+ (public_name lintshell.plugins.category.something)
+ (libraries lintshell))
