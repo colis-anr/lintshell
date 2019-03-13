@@ -1,0 +1,4 @@
+- Name:    redirections/inverted
+- Author:  Nicolas Jeannerod <nicolas.jeannerod@irif.fr>
+- Summary: Looks for inverted redirections like 2>&1 >/dev/null
+- Description:  Looks for inverted redirections like 2>&1 >/dev/null

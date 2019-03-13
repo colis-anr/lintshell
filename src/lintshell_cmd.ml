@@ -68,7 +68,9 @@ let load_available_analyzers () =
     (search_paths ())
 
 let list () = Lintshell.Analyzer.(
-    List.iter show_short_description (analyzers ())
+    let compare_analyzer_names a1 a2 = String.compare (name a1) (name a2) in
+    List.sort compare_analyzer_names (analyzers ())
+    |> List.iter show_short_description
 )
 
 let show what = Lintshell.Analyzer.(

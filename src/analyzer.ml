@@ -111,13 +111,15 @@ let analyzers () = !_analyzers
 let register_analyzer (module Analyzer : S) =
   _analyzers := (module Analyzer) :: !_analyzers
 
+let name (module Analyzer : S) = Analyzer.name
+
 let show_short_description (module Analyzer : S) =
   Printf.printf "%-30s %s\n"
     Analyzer.name
     Analyzer.short_description
 
 let show_details (module Analyzer : S) =
-  Printf.printf "Name:    %s\nAuthor:  %s\nSummary: %s\nDescription:%s"
+  Printf.printf "- Name:    %s\n- Author:  %s\n- Summary: %s\n- Description:%s"
     Analyzer.name
     Analyzer.author
     Analyzer.short_description
