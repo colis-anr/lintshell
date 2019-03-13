@@ -41,8 +41,8 @@ therefore mandatory: a name, a list of authors, a short and a long
 descriptions and most importantly, a value of type `analyzer`.
 
 There are many combinators to build analyzers, please refer to
-the [interface](src/analyzer.mli) for a complete description.
-In a nutshell, there are two families of combinators:
+the [interface](https://github.com/colis-anr/lintshell/blob/master/src/analyzer.mli)
+for a complete description. In a nutshell, there are two families of combinators:
 
 - *low-level combinators*: They allow you to write a function
   of type `t -> alarm list` where `t` is a concrete syntax
