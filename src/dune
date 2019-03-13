@@ -1,12 +1,12 @@
 (library
  (name lintshell)
  (public_name lintshell)
- (libraries morbig)
+ (libraries morbig morsmall)
  (modules :standard \ Lintshell_cmd))
 
 (executable
  (name lintshell_cmd)
  (public_name lintshell)
- (libraries morbig unix ppx_deriving_yojson.runtime lintshell findlib.dynload findlib)
+ (libraries morsmall morbig unix ppx_deriving_yojson.runtime lintshell findlib.dynload findlib)
  (modules Lintshell_cmd)
  (flags :standard -w -33))

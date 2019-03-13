@@ -89,12 +89,13 @@ let check () =
   let analyzers =
     analyzers ()
   in
-  let run_analyzer ast (module Analyzer : Lintshell.Analyzer.S) =
-    Analyzer.(interpret analyzer ast)
+  let run_analyzer cst ast (module Analyzer : Lintshell.Analyzer.S) =
+    Analyzer.(interpret analyzer cst ast)
   in
   let process filename =
-    let ast = Morbig.parse_file filename in
-    List.(flatten (map (run_analyzer ast) analyzers)) |>
+    let cst = Morbig.parse_file filename in
+    let ast = Morsmall.CST_to_AST.program__to__program cst in
+    List.(flatten (map (run_analyzer cst ast) analyzers)) |>
     List.sort Alarm.compare |>
     List.iter Alarm.show
   in

@@ -77,15 +77,22 @@ let command_of_simple_command = function
       command_suffix = []
     }
 
+module Abs = Morsmall.AST
+
 type analyzer =
+  (* CST analyzers *)
   | CheckCommand of (position -> command -> alarm list)
   | CheckProgram of (program -> alarm list)
   | CheckWordComponent of (position -> word_component -> alarm list)
+  (* AST analyzers *)
+  | CheckAbsProgram of (Abs.program -> alarm list)
+  (* Operators *)
   | Sequence  of analyzer list
 
 let check_program f = CheckProgram f
 let check_command f = CheckCommand f
 let check_word_component f = CheckWordComponent f
+let check_abs_program f = CheckAbsProgram f
 let sequence l = Sequence l
 
 module type S = sig
@@ -117,7 +124,7 @@ let show_details (module Analyzer : S) =
     (indent 2 Analyzer.documentation)
 
 (** Analyzers interpretation. *)
-let interpret : analyzer -> (program -> alarm list) =
+let interpret : analyzer -> (program -> Abs.program -> alarm list) =
   fun analyzer ->
     let ( !! ) pred =
       let rec aux accu = function
@@ -133,6 +140,7 @@ let interpret : analyzer -> (program -> alarm list) =
     let fprogram = !! (function CheckProgram f -> Some f | _ -> None) in
     let fcommand = !! (function CheckCommand f -> Some f | _ -> None) in
     let fwordcpt = !! (function CheckWordComponent f -> Some f | _ -> None) in
+    let faprogram = !! (function CheckAbsProgram f -> Some f | _ -> None) in
 
     let module Visitor = struct
       class ['a] iter = object
@@ -151,9 +159,10 @@ let interpret : analyzer -> (program -> alarm list) =
       end
     end
     in
-    fun script ->
-      (new Visitor.iter)#visit_program () script;
-      List.iter (fun f -> push (f script)) fprogram;
+    fun cst ast ->
+      (new Visitor.iter)#visit_program () cst;
+      List.iter (fun f -> push (f cst)) fprogram;
+      List.iter (fun f -> push (f ast)) faprogram;
       !alarms
 
 (** Analyzers combinators. *)
