@@ -8,5 +8,5 @@ for p in $plugins; do
     mangle=`echo $p | sed s,/,-,g`
     lintshell show $p > docs/$mangle.md
     short=`lintshell show $p | grep Summary | cut -d':' -f2`
-    echo "- [$mangle.md]($p) $short" >> docs/analyzers.md
+    echo "- [$p]($mangle.md) $short" >> docs/analyzers.md
 done

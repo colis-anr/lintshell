@@ -19,10 +19,10 @@ Type `opam install lintshell`
 
 ## Usage
 
-- `lintshell list` displays the [docs/analyzers.md](list of installed analyzers).
+- `lintshell list` displays the [list of installed analyzers](docs/analyzers.md).
 - `lintshell check script` analyzes POSIX shell `script`.
 - `lintshell show analyzer` displays a description of `analyzer`.
 
 ## Want to write your own analyzer?
 
-Please read this [docs/how-to-write-a-lintshell-analyzer.md](file)?
+Please read this [file](docs/how-to-write-a-lintshell-analyzer.md)?
