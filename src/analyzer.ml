@@ -26,11 +26,18 @@ type command_program = [
   | `Name of cmd_name'
 ]
 
+type command_context = {
+    inside_function_body : bool;
+}
+
 type command = {
   command_prefix  : command_prefix_item list;
   command_program : command_program;
   command_suffix  : command_suffix_item list;
+  command_context : command_context;
 }
+
+let command_inside_function_body c = c.command_context.inside_function_body
 
 let rec command_prefix_of_cmd_prefix = function
   | CmdPrefix_IoRedirect redirect ->
@@ -52,33 +59,38 @@ let rec command_suffix_of_cmd_suffix = function
   | CmdSuffix_CmdSuffix_Word (suffix, word) ->
     command_suffix_of_cmd_suffix suffix.value @ [ `Word word ]
 
-let command_of_simple_command = function
+let command_of_simple_command command_context = function
   | SimpleCommand_CmdPrefix_CmdWord_CmdSuffix (prefix, program, suffix) ->
     { command_prefix = command_prefix_of_cmd_prefix prefix.value;
       command_program = `Word program;
-      command_suffix = command_suffix_of_cmd_suffix suffix.value
+      command_suffix = command_suffix_of_cmd_suffix suffix.value;
+      command_context
     }
   | SimpleCommand_CmdPrefix_CmdWord (prefix, program) ->
     { command_prefix = command_prefix_of_cmd_prefix prefix.value;
       command_program = `Word program;
-      command_suffix = []
+      command_suffix = [];
+      command_context
     }
   | SimpleCommand_CmdPrefix (prefix) ->
     { command_prefix = command_prefix_of_cmd_prefix prefix.value;
       command_program = `NoProgram;
-      command_suffix = []
+      command_suffix = [];
+      command_context
     }
   | SimpleCommand_CmdName_CmdSuffix (program, suffix) ->
     {
       command_prefix = [];
       command_program = `Name program;
-      command_suffix = command_suffix_of_cmd_suffix suffix.value
+      command_suffix = command_suffix_of_cmd_suffix suffix.value;
+      command_context
     }
   | SimpleCommand_CmdName program ->
     {
       command_prefix = [];
       command_program = `Name program;
-      command_suffix = []
+      command_suffix = [];
+      command_context
     }
 
 type analyzer =
@@ -145,12 +157,23 @@ let interpret : analyzer -> (program -> Abstract.program -> alarms) =
     let fwordcpt = !! (function CheckWordComponent f -> Some f | _ -> None) in
     let faprogram = !! (function CheckAbsProgram f -> Some f | _ -> None) in
 
+    let command_context =
+      ref {
+        inside_function_body = false;
+      }
+    in
+
     let module Visitor = struct
       class ['a] iter = object
         inherit ['a] CST.iter as super
 
+        method! visit_function_definition p fdef =
+          command_context := { inside_function_body = true };
+          super#visit_function_definition p fdef;
+          command_context := { inside_function_body = false }
+
         method! visit_simple_command' p c =
-          let c' = command_of_simple_command c.value in
+          let c' = command_of_simple_command !command_context c.value in
           push (List.flatmap (fun f -> f c.position c') fcommand);
           super#visit_simple_command' p c
 

@@ -94,6 +94,8 @@ val for_all_command :
 val for_all_arguments :
   command -> (Concrete.position -> argument -> 'a list) -> 'a list
 
+val command_inside_function_body : command -> bool
+
 val word_precedes : argument -> string -> bool
 
 val check_argument : argument -> (Concrete.word -> 'a) -> 'a

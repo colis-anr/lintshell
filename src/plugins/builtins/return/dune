@@ -1,0 +1,4 @@
+(library
+ (name checkReturnOutsideFunctionBody)
+ (public_name lintshell.plugins.builtins.return)
+ (libraries lintshell))

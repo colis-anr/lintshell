@@ -31,13 +31,17 @@ let extract_from_file file from to_ =
 let report alarm =
   let filename = alarm.position.start_p.pos_fname in
   let line = alarm.position.start_p.pos_lnum in
-  let first_column = alarm.position.start_p.pos_cnum - alarm.position.start_p.pos_bol in
-  let last_column = alarm.position.end_p.pos_cnum - alarm.position.end_p.pos_bol in
-  Format.printf "\nFile \"%s\", line %d:\n: %s  %s%s\n%s@."
-    filename line
+  let first_column =
+    alarm.position.start_p.pos_cnum - alarm.position.start_p.pos_bol
+  in
+  let last_column =
+    alarm.position.end_p.pos_cnum - alarm.position.end_p.pos_bol
+  in
+  Format.printf "\nFile \"%s\", line %d, characters %d-%d:\n%s  %s%s\n%s@."
+    filename line first_column last_column
     (extract_from_file filename line line)
     (String.make first_column ' ')
-    (String.make (last_column - first_column) '^')
+    (String.make (max 0 (last_column - first_column)) '^')
     alarm.message
 
 let make ~position message =

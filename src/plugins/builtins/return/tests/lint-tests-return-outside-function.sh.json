@@ -1,0 +1,283 @@
+[
+  "Program_LineBreak_CompleteCommands_LineBreak",
+  {
+    "value": [ "LineBreak_Empty" ],
+    "position": {
+      "start_p": {
+        "pos_fname": "lint-tests-return-outside-function.sh",
+        "pos_lnum": 1,
+        "pos_bol": 0,
+        "pos_cnum": 0
+      },
+      "end_p": {
+        "pos_fname": "lint-tests-return-outside-function.sh",
+        "pos_lnum": 1,
+        "pos_bol": 0,
+        "pos_cnum": 0
+      }
+    }
+  },
+  {
+    "value": [
+      "CompleteCommands_CompleteCommand",
+      {
+        "value": [
+          "CompleteCommand_CList",
+          {
+            "value": [
+              "CList_AndOr",
+              {
+                "value": [
+                  "AndOr_Pipeline",
+                  {
+                    "value": [
+                      "Pipeline_PipeSequence",
+                      {
+                        "value": [
+                          "PipeSequence_Command",
+                          {
+                            "value": [
+                              "Command_SimpleCommand",
+                              {
+                                "value": [
+                                  "SimpleCommand_CmdName_CmdSuffix",
+                                  {
+                                    "value": [
+                                      "CmdName_Word",
+                                      {
+                                        "value": [
+                                          "Word",
+                                          "return",
+                                          [ [ "WordName", "return" ] ]
+                                        ],
+                                        "position": {
+                                          "start_p": {
+                                            "pos_fname":
+                                              "lint-tests-return-outside-function.sh",
+                                            "pos_lnum": 1,
+                                            "pos_bol": 0,
+                                            "pos_cnum": 6
+                                          },
+                                          "end_p": {
+                                            "pos_fname":
+                                              "lint-tests-return-outside-function.sh",
+                                            "pos_lnum": 1,
+                                            "pos_bol": 0,
+                                            "pos_cnum": 7
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "position": {
+                                      "start_p": {
+                                        "pos_fname":
+                                          "lint-tests-return-outside-function.sh",
+                                        "pos_lnum": 1,
+                                        "pos_bol": 0,
+                                        "pos_cnum": 6
+                                      },
+                                      "end_p": {
+                                        "pos_fname":
+                                          "lint-tests-return-outside-function.sh",
+                                        "pos_lnum": 1,
+                                        "pos_bol": 0,
+                                        "pos_cnum": 7
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "value": [
+                                      "CmdSuffix_Word",
+                                      {
+                                        "value": [
+                                          "Word",
+                                          "3",
+                                          [ [ "WordLiteral", "3" ] ]
+                                        ],
+                                        "position": {
+                                          "start_p": {
+                                            "pos_fname":
+                                              "lint-tests-return-outside-function.sh",
+                                            "pos_lnum": 1,
+                                            "pos_bol": 0,
+                                            "pos_cnum": 8
+                                          },
+                                          "end_p": {
+                                            "pos_fname":
+                                              "lint-tests-return-outside-function.sh",
+                                            "pos_lnum": 2,
+                                            "pos_bol": 9,
+                                            "pos_cnum": 9
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "position": {
+                                      "start_p": {
+                                        "pos_fname":
+                                          "lint-tests-return-outside-function.sh",
+                                        "pos_lnum": 1,
+                                        "pos_bol": 0,
+                                        "pos_cnum": 8
+                                      },
+                                      "end_p": {
+                                        "pos_fname":
+                                          "lint-tests-return-outside-function.sh",
+                                        "pos_lnum": 2,
+                                        "pos_bol": 9,
+                                        "pos_cnum": 9
+                                      }
+                                    }
+                                  }
+                                ],
+                                "position": {
+                                  "start_p": {
+                                    "pos_fname":
+                                      "lint-tests-return-outside-function.sh",
+                                    "pos_lnum": 1,
+                                    "pos_bol": 0,
+                                    "pos_cnum": 6
+                                  },
+                                  "end_p": {
+                                    "pos_fname":
+                                      "lint-tests-return-outside-function.sh",
+                                    "pos_lnum": 2,
+                                    "pos_bol": 9,
+                                    "pos_cnum": 9
+                                  }
+                                }
+                              }
+                            ],
+                            "position": {
+                              "start_p": {
+                                "pos_fname":
+                                  "lint-tests-return-outside-function.sh",
+                                "pos_lnum": 1,
+                                "pos_bol": 0,
+                                "pos_cnum": 6
+                              },
+                              "end_p": {
+                                "pos_fname":
+                                  "lint-tests-return-outside-function.sh",
+                                "pos_lnum": 2,
+                                "pos_bol": 9,
+                                "pos_cnum": 9
+                              }
+                            }
+                          }
+                        ],
+                        "position": {
+                          "start_p": {
+                            "pos_fname":
+                              "lint-tests-return-outside-function.sh",
+                            "pos_lnum": 1,
+                            "pos_bol": 0,
+                            "pos_cnum": 6
+                          },
+                          "end_p": {
+                            "pos_fname":
+                              "lint-tests-return-outside-function.sh",
+                            "pos_lnum": 2,
+                            "pos_bol": 9,
+                            "pos_cnum": 9
+                          }
+                        }
+                      }
+                    ],
+                    "position": {
+                      "start_p": {
+                        "pos_fname": "lint-tests-return-outside-function.sh",
+                        "pos_lnum": 1,
+                        "pos_bol": 0,
+                        "pos_cnum": 6
+                      },
+                      "end_p": {
+                        "pos_fname": "lint-tests-return-outside-function.sh",
+                        "pos_lnum": 2,
+                        "pos_bol": 9,
+                        "pos_cnum": 9
+                      }
+                    }
+                  }
+                ],
+                "position": {
+                  "start_p": {
+                    "pos_fname": "lint-tests-return-outside-function.sh",
+                    "pos_lnum": 1,
+                    "pos_bol": 0,
+                    "pos_cnum": 6
+                  },
+                  "end_p": {
+                    "pos_fname": "lint-tests-return-outside-function.sh",
+                    "pos_lnum": 2,
+                    "pos_bol": 9,
+                    "pos_cnum": 9
+                  }
+                }
+              }
+            ],
+            "position": {
+              "start_p": {
+                "pos_fname": "lint-tests-return-outside-function.sh",
+                "pos_lnum": 1,
+                "pos_bol": 0,
+                "pos_cnum": 6
+              },
+              "end_p": {
+                "pos_fname": "lint-tests-return-outside-function.sh",
+                "pos_lnum": 2,
+                "pos_bol": 9,
+                "pos_cnum": 9
+              }
+            }
+          }
+        ],
+        "position": {
+          "start_p": {
+            "pos_fname": "lint-tests-return-outside-function.sh",
+            "pos_lnum": 1,
+            "pos_bol": 0,
+            "pos_cnum": 6
+          },
+          "end_p": {
+            "pos_fname": "lint-tests-return-outside-function.sh",
+            "pos_lnum": 2,
+            "pos_bol": 9,
+            "pos_cnum": 9
+          }
+        }
+      }
+    ],
+    "position": {
+      "start_p": {
+        "pos_fname": "lint-tests-return-outside-function.sh",
+        "pos_lnum": 1,
+        "pos_bol": 0,
+        "pos_cnum": 6
+      },
+      "end_p": {
+        "pos_fname": "lint-tests-return-outside-function.sh",
+        "pos_lnum": 2,
+        "pos_bol": 9,
+        "pos_cnum": 9
+      }
+    }
+  },
+  {
+    "value": [ "LineBreak_Empty" ],
+    "position": {
+      "start_p": {
+        "pos_fname": "lint-tests-return-outside-function.sh",
+        "pos_lnum": 2,
+        "pos_bol": 9,
+        "pos_cnum": 9
+      },
+      "end_p": {
+        "pos_fname": "lint-tests-return-outside-function.sh",
+        "pos_lnum": 2,
+        "pos_bol": 9,
+        "pos_cnum": 9
+      }
+    }
+  }
+]

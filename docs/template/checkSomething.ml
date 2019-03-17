@@ -14,7 +14,7 @@ Something can be wrong in your script. Let me explain what!
   let message = "Something is wrong here."
 
   let analyzer =
-    for_all_command (fun pos c ->
+    for_all_command (fun pos _c ->
         Alarm.at pos message (
             true
           )
