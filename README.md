@@ -10,12 +10,27 @@ integrate it into the tool.
 
 ## Installation
 
-Type `opam install lintshell`
+### Via OPAM
+
+After the first release, there will be an OPAM package and
+`opam install lintshell` will be sufficient.
+
+One can install the latest development version with:
+
+    opam pin lintshell.dev https://github.com/colis-anr/lintshell.git
+
+Or manually by:
+
+1. cloning this repository and `cd`-ing to it;
+1. installing the dependencies: `opam install . --deps-only`
+1. building lintshell: `make`
+1. playing with it: `bin/lintshell [...]`
+1. installing it: `make install`
 
 ## Requirements
 
-   - ocaml  (>= 4.03.0)
-   - morbig (>= 0.10.3)
+- ocaml  (≥ 4.03.0)
+- morbig (≥ 0.10.3)
 
 ## Usage
 
