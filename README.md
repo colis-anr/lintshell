@@ -23,6 +23,7 @@ Or manually by:
 
 1. cloning this repository and `cd`-ing to it;
 1. installing the dependencies: `opam install . --deps-only`
+1. make sure OPAM's environment is in sync: `eval $(opam env)`
 1. building lintshell: `make`
 1. playing with it: `bin/lintshell [...]`
 1. installing it: `make install`
